@@ -110,14 +110,14 @@ Per verificare la connessione ho compilato e avviato il sample `echo_server` for
 
 ---
 
-## Problema riscontrato
+### Problema riscontrato
 
 - I pacchetti inviati dall’host **non vengono ricevuti dalla board**
 - L’echo server **non risponde**, e i pacchetti risultano **persi**
 
 ---
 
-## Conclusione
+### Conclusione
 
 - La configurazione TAP lato host sembra corretta
 - Il problema sembra lato board, probabilmente nella configurazione della periferica Ethernet (`LiteX_Ethernet`)
