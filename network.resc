@@ -1,0 +1,17 @@
+using sysbus
+mach create "arty"
+
+machine LoadPlatformDescription @/home/tindaro/renode_portable/platforms/boards/arty_litex_vexriscv.repl
+
+emulation CreateTap "tap0" "tap" true
+emulation CreateSwitch "switch1"
+
+connector Connect host.tap switch1
+connector Connect sysbus.eth switch1
+
+sysbus LoadBinary @/home/tindaro/ocre-ws/zephyr/build/zephyr/zephyr.bin 0x40000000
+sysbus.cpu SetPC 0x40000000
+
+start
+
+
