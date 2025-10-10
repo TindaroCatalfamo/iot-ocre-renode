@@ -5,68 +5,135 @@ L’obiettivo è: ricevere moduli **.wasm** da un server tramite **TCP/UDP**, ve
 
 ---
 
-##  Installazione e setup
+## Preparazione dell’ambiente
 
-### Renode
-- Guida ufficiale: [Renode docs](https://renode.readthedocs.io)  
-- Installato in modalità **portable** in `~/renode_portable`.
+Per poter avviare l’ambiente completo servono i seguenti tools:
 
-### Zephyr SDK
-- Guida: [Zephyr SDK releases](https://github.com/zephyrproject-rtos/sdk-ng/releases)  
-- Versione installata: **0.16.8**
+- **Renode**  
+  → Guida ufficiale: [Renode docs](https://renode.readthedocs.io)  
 
-### Zephyr RTOS
-- Guida: [Zephyr getting started](https://docs.zephyrproject.org/3.7.0/getting_started/index.html)  
-- Workspace separato `~/ocre-ws` con Zephyr **3.7.0** (LTS).
+- **Zephyr RTOS**  
+  → Guida: [Zephyr getting started](https://docs.zephyrproject.org/3.7.0/getting_started/index.html)
 
-### OCRE Runtime
-- Guida: [OCRE Quickstart (simulated)](https://docs.project-ocre.org/quickstart/firmware/simulated/)  
-- Repo ufficiale: [project-ocre/ocre-runtime](https://github.com/project-ocre/ocre-runtime)  
-- Verificato funzionante su `native_sim`.  
-- Porting in corso su board `litex_vexriscv` in Renode.
+- **Zephyr SDK**  
+  → [Guida installazione Zephyr SDK](https://docs.zephyrproject.org/3.7.0/develop/getting_started/index.html)
 
----
+- **OCRE Runtime**  
+  → [Guida ufficiale OCRE](https://docs.project-ocre.org/overview/) 
+  → [Repository GitHub ufficiale OCRE](https://github.com/project-ocre/ocre-runtime) 
+  
+  
+## Scelta della board
 
-##  Board emulata: LiteX VexRiscv
+Per questo progetto ho scelto la LiteX VexRiscv, una board RISC-V supportata sia da Zephyr che da Renode.
 
-- Documentazione Zephyr: [LiteX VexRiscv board](https://docs.zephyrproject.org/3.7.0/boards/enjoydigital/litex_vexriscv/doc/index.html)  
-- Documentazione OCRE board-support: [Adding board support](https://docs.project-ocre.org/board-support/adding-support/ocre-runtime/)
+- Supporto Renode: ✔️ (presente in platforms/boards/litex_vexriscv.repl)
 
-Renode fornisce già una descrizione della board `arty_litex_vexriscv.repl` che include:
-- CPU VexRiscv
-- Periferiche base LiteX
-- Controller Ethernet (`sysbus.eth`)
+- Supporto Zephyr: ✔️ (west build -b litex_vexriscv)
 
----
+- Supporto OCRE: ❌ non ancora disponibile
 
-## Configurazione rete host ↔ board
+OCRE attualmente supporta solo due board ufficiali ( esplicitamente citato nel sito ufficiale e nel repo), tra queste due board troviamo:
+- native_sim, usata solo per test.
 
-- 1) Creata interfaccia **TAP** sull’host:
+- board B-U585I-IOT02A è una scheda di sviluppo/valutazione (discovery kit) prodotta da STMicroelectronics, non supportata per Renode.
+
+Tuttavia, il progetto OCRE fornisce una guida su come aggiungere il supporto per una nuova board:
+
+→ Guida: https://docs.project-ocre.org/board-support/
+
+## Connessione tra host e board emulata (Renode)
+
+L’obiettivo è permettere al server locale (host) di comunicare con la board emulata in Renode, per inviare moduli WebAssembly.
+Renode consente di simulare connessioni Ethernet tramite switch virtuali e interfacce TAP (https://renode.readthedocs.io/en/latest/networking/wired.html)
+
+
+Ho creato un’interfaccia TAP sul mio host Linux con indirizzo statico:
+
+Ho creato un interfaccia **TAP** sull’host:
   ```bash
   sudo ip tuntap add dev tap0 mode tap user $USER
   sudo ip link set tap0 up
   sudo ip addr add 192.168.100.1/24 dev tap0
+ 
+Successivamente ho subito controllato se fosse attiva e funzioante
+
+  ```bash ip addr show tap0` → conferma indirizzo e stato UP
   
-- 2) Configurato renode con **switch virtuale**:
-  ```bash
-  emulation CreateSwitch "sw0"
-  connector Connect sysbus.eth sw0
-  emulation CreateTap "tap0" "sw0"
+Ho creato un file .repl personalizzato per la board LiteX VexRiscv, in cui ho definito:
 
-- 3) Assegnato IP statico alla board (192.168.100.10/24) tramite litex_vexriscv.conf.
+- Creazione di uno switch virtuale
+
+- Aggiunta di un’interfaccia TAP collegata allo switch
+
+- Connessione della periferica Ethernet della board allo switch
+
+Esempio semplificato del mio file .repl:
+
+ ```bash emulation CreateSwitch "sw0"
+    emulation CreateTap "tap0" "sw0"
+    connector Connect sysbus.eth sw0
+
+Inoltre, nel file di configurazione .conf (litex_vexriscv.conf), ho assegnato un IP statico alla board:
+
+ ```bash CONFIG_NET_CONFIG_SETTINGS=y
+         CONFIG_NET_CONFIG_MY_IPV4_ADDR="192.168.100.10"
+         CONFIG_NET_CONFIG_MY_IPV4_NETMASK="255.255.255.0"
+         CONFIG_NET_CONFIG_MY_IPV4_GW="192.168.100.1"
 
 
-### Test con Echo Server Zephyr
+In questo modo:
 
-- Ho compilato e avviato il sample **echo_server** di Zephyr per la board `litex_vexriscv`.
-- Ho configurato la rete con IP statico `192.168.100.10/24` (board) ↔ `192.168.100.1/24` (host).
-- Lato host:
-  - L’interfaccia **tap0** è visibile e attiva (`ip addr show tap0` → conferma indirizzo e stato UP).
-  - I pacchetti ICMP/TCP vengono inviati correttamente (verificato con `ping` e `tcpdump`).
-- Problema:
-  - I pacchetti **non vengono ricevuti dalla board** in Renode.
-  - Echo server non risponde, e i pacchetti risultano persi.
-- Conclusione:
-  - Lato host la configurazione TAP è corretta.
-  - Il problema potrebbe essere lato **board**, ovvero nella configurazione della periferica Ethernet (`LiteX_Ethernet`).
+Board → 192.168.100.10/24
+
+Host → 192.168.100.1/24
+  
+  
+
+## Test di comunicazione con Echo Server (Zephyr)
+
+Per verificare la connessione ho compilato e avviato il sample “echo_server” fornito da Zephyr per la board litex_vexriscv.
+
+**Lato host**
+
+- Interfaccia tap0 visibile e funzionante
+
+- Pacchetti ICMP/TCP inviati correttamente (verificato con ping e tcpdump)
+
+**Lato board (Renode)**
+
+- Echo server in esecuzione
+
+- IP statico correttamente impostato
+
+**Problema riscontrato**
+
+- I pacchetti inviati dal host vengono spediti ma non ricevuti dalla board.
+
+- L’echo server non risponde, e i pacchetti risultano persi.
+
+**Conclusione**
+
+- Lato host, la configurazione TAP sembra essere corretta.
+
+- Il problema sembra essere lato board, probabilmente nella configurazione della periferica Ethernet (LiteX_Ethernet).
+Potrebbe trattarsi di una mancata inizializzazione del driver o di un problema di compatibilità tra Zephyr e il modello Renode.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
