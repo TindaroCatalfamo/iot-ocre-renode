@@ -76,10 +76,11 @@ Esempio semplificato del mio file .repl:
 
 Inoltre, nel file di configurazione .conf (litex_vexriscv.conf), ho assegnato un IP statico alla board:
 
- ```bash CONFIG_NET_CONFIG_SETTINGS=y
-         CONFIG_NET_CONFIG_MY_IPV4_ADDR="192.168.100.10"
-         CONFIG_NET_CONFIG_MY_IPV4_NETMASK="255.255.255.0"
-         CONFIG_NET_CONFIG_MY_IPV4_GW="192.168.100.1"
+ ```bash 
+ CONFIG_NET_CONFIG_SETTINGS=y
+ CONFIG_NET_CONFIG_MY_IPV4_ADDR="192.168.100.10"
+ CONFIG_NET_CONFIG_MY_IPV4_NETMASK="255.255.255.0"
+ CONFIG_NET_CONFIG_MY_IPV4_GW="192.168.100.1"
 
 
 In questo modo:
@@ -89,7 +90,6 @@ Board → 192.168.100.10/24
 Host → 192.168.100.1/24
   
   
-
 ## Test di comunicazione con Echo Server (Zephyr)
 
 Per verificare la connessione ho compilato e avviato il sample “echo_server” fornito da Zephyr per la board litex_vexriscv.
