@@ -64,7 +64,7 @@ ip addr show tap0
 
 ### Configurazione in Renode (.repl)
 
-Nel file `.repl` personalizzato ho definito:
+Nel file `.resc` personalizzato ho definito:
 
 - Creazione di uno switch virtuale
 - Aggiunta dell’interfaccia TAP allo switch
