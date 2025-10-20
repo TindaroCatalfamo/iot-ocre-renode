@@ -150,10 +150,12 @@ Tuttavia, la guida si interrompe nella fase di deploy, con il messaggio:
 Per poter eseguire il modulo, ho creato all’interno della cartella del runtime OCRE una sottocartella con il modulo `.wasm` e un file `manifest.json` che specifica come e quando OCRE deve eseguirlo.  
 Un container OCRE ha questa struttura:
 
+```
 containers/
 └── hello_world/
 ├── hello_world.wasm
 └── manifest.json
+```
 
 - `hello_world.wasm` → Il modulo WebAssembly da eseguire  
 - `manifest.json` → Il file di configurazione del container
@@ -180,20 +182,18 @@ Il runtime **OCRE** si occupa automaticamente di:
 
 La gerarchia di esecuzione in OCRE è concettualmente la seguente:
 
+```
 Zephyr RTOS
-│
 └── OCRE Runtime (applicazione Zephyr)
-    │
     ├── Container #1: hello_world
-    │     ├── hello_world.wasm
-    │     └── manifest.json
-    │
+    │   ├── hello_world.wasm
+    │   └── manifest.json
     ├── Container #2: sensor_reader
-    │     ├── sensor_reader.wasm
-    │     └── manifest.json
-    │
+    │   ├── sensor_reader.wasm
+    │   └── manifest.json
     └── ...
-    
+```
+
 ### Compilazione e deploy con `build.sh`
 
 Poiché la guida ufficiale non fornisce ancora i passi di deploy, è possibile utilizzare lo script `build.sh` incluso nel [repository ufficiale OCRE].
@@ -205,9 +205,6 @@ Questo script permette di compilare e lanciare OCRE per **Zephyr** o **Linux** c
 - -f <file(s)> : Input file(s) to embed (optional)
 - -b <board> : (Zephyr only) Target board (default: native_sim)
 - -h : Show help
-
-
-#### Comando utilizzato
 
 Nel mio caso, il comando utilizzato è stato:
 
@@ -226,7 +223,7 @@ missing and no known rule to make it
 FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /home/tindaro/runtime/build
 ```
 
-embra un errore legato alla generazione del file `ocre_input_file.g`, che OCRE dovrebbe creare **automaticamente** durante la build a partire dal file `.wasm`.
+sembra un errore legato alla generazione del file `ocre_input_file.g`, che OCRE dovrebbe creare **automaticamente** durante la build a partire dal file `.wasm`.
 
 Nonostante vari tentativi di debug e ricerca, il problema persiste:
 - Il file `ocre_input_file.g` **non viene generato**  
