@@ -126,3 +126,110 @@ Per verificare la connessione ho compilato e avviato il sample `echo_server` for
   - Problema di compatibilità tra Zephyr e il modello Ethernet di Renode
 
 ---
+
+## Creazione e deploy di container OCRE (moduli WebAssembly)
+
+Prima di aggiungere il supporto per la mia scheda RISC-V (non ancora supportata da OCRE), ho provato ad aggiungere dei moduli **WASM** al runtime OCRE e farli eseguire su **native_sim**, poiché è già supportata da OCRE e non richiede né emulazione né una scheda fisica da flashare.
+
+Ho seguito la guida ufficiale “Your first app” disponibile sul sito OCRE:  
+👉 [OCRE Quickstart – Your first app](https://docs.project-ocre.org/quickstart/first-app/)
+
+Questa guida spiega come creare container OCRE utilizzando **Visual Studio Code**, **Docker** e l’estensione **Dev Containers**.  
+Seguendola, ho creato con successo un container contenente il modulo WebAssembly `hello_world.wasm`.  
+
+Tuttavia, la guida si interrompe nella fase di deploy, con il messaggio:
+
+> “Deploying Your First Container  
+> Now that you’ve built your container, let’s get it running on your device.  
+> Steps to be updated soon.”
+
+---
+
+### Struttura dei container OCRE
+
+Per poter eseguire il modulo, ho creato all’interno della cartella del runtime OCRE una sottocartella con il modulo `.wasm` e un file `manifest.json` che specifica come e quando OCRE deve eseguirlo.  
+Un container OCRE ha questa struttura:
+
+containers/
+└── hello_world/
+├── hello_world.wasm
+└── manifest.json
+
+- `hello_world.wasm` → Il modulo WebAssembly da eseguire  
+- `manifest.json` → Il file di configurazione del container
+
+```json
+{
+  "name": "hello_world",
+  "module": "hello_world.wasm",
+  "args": [],
+  "autostart": true
+}
+```
+
+### Integrazione dei container in Zephyr
+
+Su Zephyr non esiste un filesystem dinamico: i container vengono inclusi **staticamente** nella build.  
+Il runtime **OCRE** si occupa automaticamente di:
+
+- Convertire il file `.wasm` in un array C (`ocre_input_file.g`);
+- Compilare l’array all’interno del firmware Zephyr;
+- All’avvio, individuare il container incluso ed eseguirlo.
+
+####Gerarchia di esecuzione
+
+La gerarchia di esecuzione in OCRE è concettualmente la seguente:
+
+Zephyr RTOS
+│
+└── OCRE Runtime (applicazione Zephyr)
+    │
+    ├── Container #1: hello_world
+    │     ├── hello_world.wasm
+    │     └── manifest.json
+    │
+    ├── Container #2: sensor_reader
+    │     ├── sensor_reader.wasm
+    │     └── manifest.json
+    │
+    └── ...
+    
+### Compilazione e deploy con `build.sh`
+
+Poiché la guida ufficiale non fornisce ancora i passi di deploy, è possibile utilizzare lo script `build.sh` incluso nel [repository ufficiale OCRE].
+
+Questo script permette di compilare e lanciare OCRE per **Zephyr** o **Linux** con diverse opzioni:
+
+- -t <target> : Required. z = Zephyr, l = Linux
+- -r : Run after build (optional)
+- -f <file(s)> : Input file(s) to embed (optional)
+- -b <board> : (Zephyr only) Target board (default: native_sim)
+- -h : Show help
+
+
+#### Comando utilizzato
+
+Nel mio caso, il comando utilizzato è stato:
+
+```bash
+./build.sh -t z -r -f containers/hello_world/hello_world.wasm
+```
+
+## Errore riscontrato
+
+La compilazione parte correttamente, ma fallisce sempre con il seguente errore:
+
+```bash
+ninja: error: '/home/tindaro/runtime/application/containers/hello_world/hello_world.wasm',
+needed by '/home/tindaro/runtime/application/src/ocre/ocre_input_file.g',
+missing and no known rule to make it
+FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /home/tindaro/runtime/build
+```
+
+embra un errore legato alla generazione del file `ocre_input_file.g`, che OCRE dovrebbe creare **automaticamente** durante la build a partire dal file `.wasm`.
+
+Nonostante vari tentativi di debug e ricerca, il problema persiste:
+- Il file `ocre_input_file.g` **non viene generato**  
+- La build termina con errore
+
+
