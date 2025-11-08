@@ -138,7 +138,7 @@ Questa guida spiega come creare container OCRE utilizzando **Visual Studio Code*
 Seguendola, ho creato con successo un container contenente il modulo WebAssembly `hello_world.wasm`.  
 
 Tuttavia, la guida si interrompe nella fase di deploy, con il messaggio:
-
+![Screenshot della guida ufficiale di OCRE](OCRE_guide.png)
 > “Deploying Your First Container  
 > Now that you’ve built your container, let’s get it running on your device.  
 > Steps to be updated soon.”
