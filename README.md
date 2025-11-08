@@ -28,9 +28,9 @@ Per poter avviare l’ambiente completo servono i seguenti tools:
 
 Per questo progetto ho scelto la LiteX VexRiscv, una board RISC-V supportata sia da Zephyr che da Renode.
 
-- Supporto Renode: ✔️ (presente in `platforms/boards/litex_vexriscv.repl`)
-- Supporto Zephyr: ✔️ (`west build -b litex_vexriscv`)
-- Supporto OCRE: ❌ *non ancora disponibile*
+- Supporto Renode:  (presente in `platforms/boards/litex_vexriscv.repl`)
+- Supporto Zephyr:  (`west build -b litex_vexriscv`)
+- Supporto OCRE:  *non ancora disponibile*
 
 Attualmente, OCRE supporta solo due board ufficiali (come indicato nel sito e nel repository ufficiale):
 
@@ -127,76 +127,23 @@ Per verificare la connessione ho compilato e avviato il sample `echo_server` for
 
 ---
 
-## Creazione e deploy di container OCRE (moduli WebAssembly)
+## Creazione e deploy di un OCRE container su OCRE runtime
 
 Prima di aggiungere il supporto per la mia scheda RISC-V (non ancora supportata da OCRE), ho provato ad aggiungere dei moduli **WASM** al runtime OCRE e farli eseguire su **native_sim**, poiché è già supportata da OCRE e non richiede né emulazione né una scheda fisica da flashare.
 
 Ho seguito la guida ufficiale “Your first app” disponibile sul sito OCRE:  
-👉 [OCRE Quickstart – Your first app](https://docs.project-ocre.org/quickstart/first-app/)
+[OCRE Quickstart – Your first app](https://docs.project-ocre.org/quickstart/first-app/)
 
 Questa guida spiega come creare container OCRE utilizzando **Visual Studio Code**, **Docker** e l’estensione **Dev Containers**.  
-Seguendola, ho creato con successo un container contenente il modulo WebAssembly `hello_world.wasm`.  
+Seguendola, ho creato con successo il modulo WebAssembly `hello_world.wasm`, che viene usato da OCRE CLI per creare un OCRE container.  
 
-Tuttavia, la guida si interrompe nella fase di deploy, con il messaggio:
-![Screenshot della guida ufficiale di OCRE](OCRE_guide.png)
-> “Deploying Your First Container  
-> Now that you’ve built your container, let’s get it running on your device.  
-> Steps to be updated soon.”
+Tuttavia, la guida si interrompe proprio qui, con nessuna spiegazione su come creare un OCRE container, ne su come deployarlo su un qualsiasi dispositivo simulato o non.
+![Screenshot della guida ufficiale di OCRE](images/OCRE_guide.png)
 
----
+Facendo alcune ricerche OCRE CLI "ufficiale" non è ancora pubblica ( è in roadmap ), oggi il flusso consigliato usa ORAS/OCI per creare e distribuire l'immagine che poi OCRE esegue sul nostro dispositivo.
+Nel repository ufficiale di OCRE, viene presentato lo script build.sh, che serve per automatizzare la creazione del container OCRE a partire dal modulo applicativo ( modulo wasm ), più i metadati necessari.
 
-### Struttura dei container OCRE
-
-Per poter eseguire il modulo, ho creato all’interno della cartella del runtime OCRE una sottocartella con il modulo `.wasm` e un file `manifest.json` che specifica come e quando OCRE deve eseguirlo.  
-Un container OCRE ha questa struttura:
-
-```
-containers/
-└── hello_world/
-├── hello_world.wasm
-└── manifest.json
-```
-
-- `hello_world.wasm` → Il modulo WebAssembly da eseguire  
-- `manifest.json` → Il file di configurazione del container
-
-```json
-{
-  "name": "hello_world",
-  "module": "hello_world.wasm",
-  "args": [],
-  "autostart": true
-}
-```
-
-### Integrazione dei container in Zephyr
-
-Su Zephyr non esiste un filesystem dinamico: i container vengono inclusi **staticamente** nella build.  
-Il runtime **OCRE** si occupa automaticamente di:
-
-- Convertire il file `.wasm` in un array C (`ocre_input_file.g`);
-- Compilare l’array all’interno del firmware Zephyr;
-- All’avvio, individuare il container incluso ed eseguirlo.
-
-####Gerarchia di esecuzione
-
-La gerarchia di esecuzione in OCRE è concettualmente la seguente:
-
-```
-Zephyr RTOS
-└── OCRE Runtime (applicazione Zephyr)
-    ├── Container #1: hello_world
-    │   ├── hello_world.wasm
-    │   └── manifest.json
-    ├── Container #2: sensor_reader
-    │   ├── sensor_reader.wasm
-    │   └── manifest.json
-    └── ...
-```
-
-### Compilazione e deploy con `build.sh`
-
-Poiché la guida ufficiale non fornisce ancora i passi di deploy, è possibile utilizzare lo script `build.sh` incluso nel [repository ufficiale OCRE].
+In pratica questo script, prende il modulo wasm, genera il config JSON, impacchetta il tutto come immagine OCI e la registra localmente o su un registro.
 
 Questo script permette di compilare e lanciare OCRE per **Zephyr** o **Linux** con diverse opzioni:
 
@@ -206,27 +153,28 @@ Questo script permette di compilare e lanciare OCRE per **Zephyr** o **Linux** c
 - -b <board> : (Zephyr only) Target board (default: native_sim)
 - -h : Show help
 
-Nel mio caso, il comando utilizzato è stato:
+Inizialmente ho provato per target Linux:
 
 ```bash
-./build.sh -t z -r -f containers/hello_world/hello_world.wasm
+./build.sh -t l -r -f /home/tindaro/getting-started/samples/sensor_polling/build/sensor_polling.wasm
 ```
+Il file viene buildato e compilato senza nessun problema, mostrando anche l'output del modulo wasm
+![Screenshot della guida ufficiale di OCRE](images/output_linux.png)
 
-## Errore riscontrato
-
-La compilazione parte correttamente, ma fallisce sempre con il seguente errore:
+Successivmaente, ho provato ad eseguire il target Zephyr ( quello che interessa a noi ):
 
 ```bash
-ninja: error: '/home/tindaro/runtime/application/containers/hello_world/hello_world.wasm',
-needed by '/home/tindaro/runtime/application/src/ocre/ocre_input_file.g',
-missing and no known rule to make it
+./build.sh -t l -r -f /home/tindaro/getting-started/samples/sensor_polling/build/sensor_polling.wasm
+```
+La build si ferma con il seguente errore: 
+```bash
+[13/1336] Generating include/generated/zephyr/version.h
+-- Zephyr version: 4.2.0 (/home/tindaro/runtime/zephyr), build: v4.2.0-32-g8d0d392f8cc7
+[14/1336] Running Python script to gen...e/application/src/messaging/messages.g
+ninja: build stopped: subcommand failed.
 FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /home/tindaro/runtime/build
 ```
-
-sembra un errore legato alla generazione del file `ocre_input_file.g`, che OCRE dovrebbe creare **automaticamente** durante la build a partire dal file `.wasm`.
-
-Nonostante vari tentativi di debug e ricerca, il problema persiste:
-- Il file `ocre_input_file.g` **non viene generato**  
-- La build termina con errore
+- 
+---
 
 
