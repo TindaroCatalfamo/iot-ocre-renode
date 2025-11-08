@@ -177,4 +177,6 @@ FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /home/tindaro/
 - 
 ---
 
-
+### Consigli
+- passare il modulo wasm tramite percorso assoluto nel comando di build.sh 
+- se l'installazione di OCRE e delle librerie per farlo funzionare sono state fatte tramite venv python, ricordatevi di attivarlo prima dell'esecuzione del comando ./build.sh ...
