@@ -1,0 +1,6 @@
+cat > image/oci-layout <<'EOF'
+{
+  "imageLayoutVersion": "1.0.0"
+}
+EOF
+

@@ -1,0 +1,3 @@
+/workspaces/getting-started/samples/hello-world/build/CMakeFiles/hello-world.wasm.dir
+/workspaces/getting-started/samples/hello-world/build/CMakeFiles/edit_cache.dir
+/workspaces/getting-started/samples/hello-world/build/CMakeFiles/rebuild_cache.dir

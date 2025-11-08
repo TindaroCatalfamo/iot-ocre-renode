@@ -1,0 +1,14 @@
+# Copyright (C) 2025 Atym Incorporated. All rights reserved.
+# Atym container image definition
+
+version: '1'
+
+name: blinky
+binaries:
+  - path: build/blinky.wasm
+
+config:
+  environment:
+  permissions:
+    - ocre_gpio
+    - ocre_timers

@@ -1,0 +1,13 @@
+# Copyright (C) 2024 Atym Incorporated. All rights reserved.
+# Atym container image definition
+
+version: '1'
+
+name: echo-server
+binaries:
+  - path: build/echo-server.wasm
+
+config:
+  environment:
+  permissions:
+    - networking

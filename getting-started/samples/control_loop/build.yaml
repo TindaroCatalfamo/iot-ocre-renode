@@ -1,0 +1,12 @@
+# Copyright (C) 2025 Atym Incorporated. All rights reserved.
+# Atym container image definition
+
+version: '1'
+
+name: control_loop
+binaries:
+  - path: build/control_loop.wasm
+
+config:
+  environment:
+  permissions:

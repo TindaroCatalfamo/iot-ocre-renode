@@ -1,0 +1,23 @@
+CMakeFiles/hello-world.wasm.dir/main.c.obj: \
+  /workspaces/getting-started/samples/hello-world/main.c \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/stdio.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/features.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/bits/alltypes.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__struct_timeval.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__typedef_time_t.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__typedef_suseconds_t.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__struct_timespec.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__struct_iovec.h \
+  /opt/wasi-sdk/lib/clang/19/include/stddef.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_size_t.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_null.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/__seek.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/wasi/api.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_header_macro.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_ptrdiff_t.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_wchar_t.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_max_align_t.h \
+  /opt/wasi-sdk/lib/clang/19/include/__stddef_offsetof.h \
+  /opt/wasi-sdk/lib/clang/19/include/stdint.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/stdint.h \
+  /opt/wasi-sdk/bin/../share/wasi-sysroot/include/wasm32-wasip1/bits/stdint.h

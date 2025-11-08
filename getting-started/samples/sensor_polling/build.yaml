@@ -1,0 +1,12 @@
+# Copyright (C) 2025 Atym Incorporated. All rights reserved.
+# Atym container image definition
+
+version: '1'
+
+name: sensor_polling
+binaries:
+  - path: build/sensor_polling.wasm
+
+config:
+  environment:
+  permissions:

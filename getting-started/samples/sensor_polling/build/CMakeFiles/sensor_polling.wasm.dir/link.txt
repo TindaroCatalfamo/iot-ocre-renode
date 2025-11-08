@@ -1,0 +1,1 @@
+/opt/wasi-sdk/share/cmake/../..//bin/clang --target=wasm32-wasip1 -Wl,--strip-all -Wl,--allow-undefined CMakeFiles/sensor_polling.wasm.dir/main.c.obj -o sensor_polling.wasm 

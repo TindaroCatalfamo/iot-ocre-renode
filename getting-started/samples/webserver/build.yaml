@@ -1,0 +1,13 @@
+# Copyright (C) 2025 Atym Incorporated. All rights reserved.
+# Atym container image definition
+
+version: '1'
+
+name: webserver
+binaries:
+  - path: build/webserver.wasm
+
+config:
+  environment:
+  permissions:
+    - networking

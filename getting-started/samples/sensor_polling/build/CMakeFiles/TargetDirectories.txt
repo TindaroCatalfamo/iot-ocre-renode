@@ -1,0 +1,3 @@
+/workspaces/getting-started/samples/sensor_polling/build/CMakeFiles/sensor_polling.wasm.dir
+/workspaces/getting-started/samples/sensor_polling/build/CMakeFiles/edit_cache.dir
+/workspaces/getting-started/samples/sensor_polling/build/CMakeFiles/rebuild_cache.dir

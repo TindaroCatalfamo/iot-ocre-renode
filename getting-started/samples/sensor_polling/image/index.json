@@ -1,0 +1,16 @@
+cat > image/index.json <<EOF
+{
+  "schemaVersion": 2,
+  "manifests": [
+    {
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "digest": "sha256:${MANIFEST_DIGEST_HEX}",
+      "size": ${MANIFEST_SIZE},
+      "annotations": {
+        "org.opencontainers.image.ref.name": "sensor_polling:v1"
+      }
+    }
+  ]
+}
+EOF
+

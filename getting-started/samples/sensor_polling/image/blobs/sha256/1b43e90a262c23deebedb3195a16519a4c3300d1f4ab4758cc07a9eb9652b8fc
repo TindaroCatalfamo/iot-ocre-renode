@@ -1,0 +1,13 @@
+cat > config.json <<EOF
+{
+  "architecture": "wasm",
+  "os": "wasip1",
+  "module": {
+    "entryPoint": "on_init"
+  },
+  "layerDigests": [
+    "sha256:${WASM_DIGEST_HEX}"
+  ]
+}
+EOF
+
