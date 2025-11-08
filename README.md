@@ -138,7 +138,7 @@ Questa guida spiega come creare container OCRE utilizzando **Visual Studio Code*
 Seguendola, ho creato con successo il modulo WebAssembly `hello_world.wasm`, che viene usato da OCRE CLI per creare un OCRE container.  
 
 Tuttavia, la guida si interrompe proprio qui, con nessuna spiegazione su come creare un OCRE container, ne su come deployarlo su un qualsiasi dispositivo simulato o non.
-![Screenshot della guida ufficiale di OCRE](images/OCRE_guide.png)
+![Screenshot della guida ufficiale di OCRE](OCRE_guide.png)
 
 Facendo alcune ricerche OCRE CLI "ufficiale" non è ancora pubblica ( è in roadmap ), oggi il flusso consigliato usa ORAS/OCI per creare e distribuire l'immagine che poi OCRE esegue sul nostro dispositivo.
 Nel repository ufficiale di OCRE, viene presentato lo script build.sh, che serve per automatizzare la creazione del container OCRE a partire dal modulo applicativo ( modulo wasm ), più i metadati necessari.
@@ -159,7 +159,7 @@ Inizialmente ho provato per target Linux:
 ./build.sh -t l -r -f /home/tindaro/getting-started/samples/sensor_polling/build/sensor_polling.wasm
 ```
 Il file viene buildato e compilato senza nessun problema, mostrando anche l'output del modulo wasm
-![Screenshot della guida ufficiale di OCRE](images/output_linux.png)
+![Screenshot della guida ufficiale di OCRE](output_linux.png)
 
 Successivmaente, ho provato ad eseguire il target Zephyr ( quello che interessa a noi ):
 
