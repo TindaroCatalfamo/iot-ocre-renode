@@ -174,7 +174,21 @@ La build si ferma con il seguente errore:
 ninja: build stopped: subcommand failed.
 FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /home/tindaro/runtime/build
 ```
-- 
+
+Ho risolto l'errore andando a modificare il file /runtime/application/CMakeLists. Durante la build del runtime OCRE, il file application/CMakeLists.txt utilizza xxd per convertire il modulo WASM in un array C (ocre_input_file.g), che viene poi incluso nel firmware Zephyr.
+La versione originale del comando era:
+```bash
+COMMAND xxd -n wasm_binary -i ${OCRE_INPUT_FILE} > ${CMAKE_CURRENT_LIST_DIR}/src/ocre/ocre_input_file.g
+```
+Questo comando provocava l'errore durante la building, poichè xxd non riusciva a riconoscere la flag -n.
+
+Per risolvere basta sostiuire questo comando con il nuovo comando:
+```bash
+COMMAND xxd -i ${OCRE_INPUT_FILE} | sed 's/unsigned char .*\\[/static const unsigned char wasm_binary[/' | sed 's/unsigned int .*_len/static const unsigned int wasm_binary_len/' > ${CMAKE_CURRENT_LIST_DIR}/src/ocre/ocre_input_file.g
+```
+
+
+
 ---
 
 ### Consigli
